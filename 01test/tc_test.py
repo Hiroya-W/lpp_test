@@ -27,7 +27,7 @@ def command(cmd):
         )
         #        for line in result.stdout.splitlines():
         #            yield line
-        return [result.stdout, result.stderr]
+        return (result.stdout, result.stderr)
     except subprocess.CalledProcessError:
         print("外部プログラムの実行に失敗しました [" + cmd + "]", file=sys.stderr)
         sys.exit(1)
@@ -37,10 +37,8 @@ def common_task(mpl_file, out_file):
     try:
         #        tc = Path(__file__).parent.parent.joinpath("tc")
         exec = Path(targetpath).joinpath(target)
-        exec_res = command("{} {}".format(exec, mpl_file))
+        sout, serr = command("{} {}".format(exec, mpl_file))
         out = []
-        sout = exec_res.pop(0)
-        serr = exec_res.pop(0)
         if serr:
             raise ScanError
         for line in sout.splitlines():
@@ -95,15 +93,11 @@ def test_run(mpl_file):
 
 def test_no_param():
     exec = Path(targetpath).joinpath(target)
-    exec_res = command("{}".format(exec))
-    sout = exec_res.pop(0)
-    serr = exec_res.pop(0)
+    sout, serr = command("{}".format(exec))
     assert serr
 
 
 def test_not_valid_file():
     exec = Path(targetpath).joinpath(target)
-    exec_res = command("{} hogehoge".format(exec))
-    sout = exec_res.pop(0)
-    serr = exec_res.pop(0)
+    sout, serr = command("{} hogehoge".format(exec))
     assert serr
