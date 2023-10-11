@@ -80,10 +80,10 @@ test_data = sorted(glob.glob("../input01/*.mpl", recursive=True))
 def test_run(mpl_file):
     if not Path(TEST_RESULT_DIR).exists():
         os.mkdir(TEST_RESULT_DIR)
-    out_file = Path(TEST_RESULT_DIR).joinpath(Path(mpl_file).stem + ".out")
+    out_file = Path(TEST_RESULT_DIR) / (Path(mpl_file).stem + ".out")
     res = common_task(mpl_file, out_file)
     if res == 0:
-        expect_file = Path(TEST_EXPECT_DIR).joinpath(Path(mpl_file).stem + ".stdout")
+        expect_file = Path(TEST_EXPECT_DIR) / (Path(mpl_file).stem + ".stdout")
         with open(out_file) as ofp, open(expect_file) as efp:
             assert ofp.read() == efp.read()
     else:
@@ -92,12 +92,12 @@ def test_run(mpl_file):
 
 
 def test_no_param():
-    exec = Path(targetpath).joinpath(target)
+    exec = Path(targetpath) / target
     sout, serr = command(f"{exec}")
     assert serr
 
 
 def test_not_valid_file():
-    exec = Path(targetpath).joinpath(target)
+    exec = Path(targetpath) / target
     sout, serr = command(f"{exec} hogehoge")
     assert serr
