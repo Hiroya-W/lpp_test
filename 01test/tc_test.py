@@ -37,7 +37,7 @@ def common_task(mpl_file, out_file):
     try:
         #        tc = Path(__file__).parent.parent.joinpath("tc")
         exec = Path(targetpath).joinpath(target)
-        sout, serr = command("{} {}".format(exec, mpl_file))
+        sout, serr = command(f"{exec} {mpl_file}")
         out = []
         if serr:
             raise ScanError
@@ -93,11 +93,11 @@ def test_run(mpl_file):
 
 def test_no_param():
     exec = Path(targetpath).joinpath(target)
-    sout, serr = command("{}".format(exec))
+    sout, serr = command(f"{exec}")
     assert serr
 
 
 def test_not_valid_file():
     exec = Path(targetpath).joinpath(target)
-    sout, serr = command("{} hogehoge".format(exec))
+    sout, serr = command(f"{exec} hogehoge")
     assert serr
