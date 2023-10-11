@@ -1,35 +1,43 @@
-import os
 import glob
-import json
-import subprocess
-import pytest
-import sys
+import os
 import re
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 target = "tc"
 targetpath = "/workspaces"
 
+
 class ScanError(Exception):
     pass
 
+
 def command(cmd):
     try:
-        result = subprocess.run(cmd, shell=True, check=False,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                universal_newlines=True)
-#        for line in result.stdout.splitlines():
-#            yield line
-        return [result.stdout,result.stderr]
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
+        #        for line in result.stdout.splitlines():
+        #            yield line
+        return [result.stdout, result.stderr]
     except subprocess.CalledProcessError:
-        print('外部プログラムの実行に失敗しました [' + cmd + ']', file=sys.stderr)
+        print("外部プログラムの実行に失敗しました [" + cmd + "]", file=sys.stderr)
         sys.exit(1)
+
 
 def common_task(mpl_file, out_file):
     try:
-#        tc = Path(__file__).parent.parent.joinpath("tc")
+        #        tc = Path(__file__).parent.parent.joinpath("tc")
         exec = Path(targetpath).joinpath(target)
-        exec_res = command("{} {}".format(exec,mpl_file))
+        exec_res = command("{} {}".format(exec, mpl_file))
         out = []
         sout = exec_res.pop(0)
         serr = exec_res.pop(0)
@@ -39,24 +47,25 @@ def common_task(mpl_file, out_file):
             formatted = re.sub(r'\s*"\s*(\S*)\s*"\s*(\d+)\s*', r'"\1"\t\2\n', line)
             out.append(formatted)
         out.sort()
-        with open(out_file, mode='w') as fp:
-            for l in out:
-                fp.write(l)
+        with open(out_file, mode="w") as fp:
+            for line in out:
+                fp.write(line)
         return 0
     except ScanError:
-        if re.search(r'sample0', mpl_file):
+        if re.search(r"sample0", mpl_file):
             for line in serr.splitlines():
                 out.append(line)
-            with open(out_file, mode='w') as fp:
-                for l in out:
-                    fp.write(l+'\n')
+            with open(out_file, mode="w") as fp:
+                for line in out:
+                    fp.write(line + "\n")
             return 1
         else:
-            raise ScanError        
+            raise ScanError
     except Exception as err:
-        with open(out_file, mode='w') as fp:
+        with open(out_file, mode="w") as fp:
             print(err, file=fp)
         raise err
+
 
 # ===================================
 # pytest code
@@ -66,6 +75,7 @@ TEST_RESULT_DIR = "test_results"
 TEST_EXPECT_DIR = "test_expects"
 
 test_data = sorted(glob.glob("../input01/*.mpl", recursive=True))
+
 
 @pytest.mark.timeout(10)
 @pytest.mark.parametrize(("mpl_file"), test_data)
@@ -80,18 +90,20 @@ def test_run(mpl_file):
             assert ofp.read() == efp.read()
     else:
         with open(out_file) as ofp:
-            assert not ofp.read() == ''
+            assert not ofp.read() == ""
+
 
 def test_no_param():
     exec = Path(targetpath).joinpath(target)
     exec_res = command("{}".format(exec))
     sout = exec_res.pop(0)
     serr = exec_res.pop(0)
-    assert serr 
+    assert serr
+
 
 def test_not_valid_file():
     exec = Path(targetpath).joinpath(target)
     exec_res = command("{} hogehoge".format(exec))
     sout = exec_res.pop(0)
     serr = exec_res.pop(0)
-    assert serr 
+    assert serr
