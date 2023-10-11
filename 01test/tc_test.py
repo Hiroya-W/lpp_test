@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Literal
 
 import pytest
 
@@ -15,7 +16,7 @@ class ScanError(Exception):
     pass
 
 
-def command(cmd):
+def command(cmd: str) -> tuple[str, str]:
     try:
         result = subprocess.run(
             cmd,
@@ -33,7 +34,7 @@ def command(cmd):
         sys.exit(1)
 
 
-def common_task(mpl_file, out_file):
+def common_task(mpl_file: str, out_file: Path) -> Literal[0, 1]:
     try:
         #        tc = Path(__file__).parent.parent.joinpath("tc")
         exec = Path(targetpath).joinpath(target)
@@ -77,7 +78,7 @@ test_data = sorted(glob.glob("../input01/*.mpl", recursive=True))
 
 @pytest.mark.timeout(10)
 @pytest.mark.parametrize(("mpl_file"), test_data)
-def test_run(mpl_file):
+def test_run(mpl_file: str) -> None:
     if not Path(TEST_RESULT_DIR).exists():
         os.mkdir(TEST_RESULT_DIR)
     out_file = Path(TEST_RESULT_DIR) / (Path(mpl_file).stem + ".out")
@@ -91,13 +92,13 @@ def test_run(mpl_file):
             assert not ofp.read() == ""
 
 
-def test_no_param():
+def test_no_param() -> None:
     exec = Path(targetpath) / target
     sout, serr = command(f"{exec}")
     assert serr
 
 
-def test_not_valid_file():
+def test_not_valid_file() -> None:
     exec = Path(targetpath) / target
     sout, serr = command(f"{exec} hogehoge")
     assert serr
